@@ -11,73 +11,73 @@ spec:
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: db.host
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: db.user
         - name: DB_PASS
           valueFrom:
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: db.pass
         - name: DB_DATABASE
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: db.database
         - name: APP_URL
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: app.url
         - name: APP_NAME
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: app.name
         - name: SETUP_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: setup.password
         - name: REG_TYPE
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: reg.type
         - name: IP_METHOD
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: ip.method
         - name: PRIVATE
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: private
         - name: THEME
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: theme
         - name: ADMIN_USER
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: admin.user
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: admin.password
         - name: ADMIN_EMAIL
           valueFrom:
             secretKeyRef:
-              name: polrSecrets
+              name: polr.secrets
               key: admin.email
   restartPolicy: Never
 
