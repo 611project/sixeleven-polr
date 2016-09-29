@@ -14,6 +14,7 @@ spec:
     app: polr
     app: main
     tier: frontend
+  type: LoadBalancer
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -57,7 +58,7 @@ spec:
         - name: IP_METHOD
           value:
         - name: PRIVATE
-          value: true
+          value: 'true'
         - name: THEME
           value: none
         - name: ADMIN_USER
