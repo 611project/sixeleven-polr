@@ -1,74 +1,67 @@
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
-  name: ""
-  generateName: polr-
+  name: polr-main
+  labels:
+    app: polr
+    app: main
+    tier: frontend
 spec:
-  containers:
-    - name: polr
-      image: gcr.io/blissful-glass-144400/polr 
-      env:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: polr
+    app: main
+    tier: frontend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: polr-main
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: polr
+        app: main
+        tier: frontend
+    spec:
+      containers:
+      - name: polr-main
+        image: gcr.io/blissful-glass-144400/polr
+        env:
         - name: DB_HOST
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: db.host
+          value: polr-mysql
         - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: db.user
+          value: polr
         - name: DB_PASS
-          valueFrom:
           valueFrom:
             secretKeyRef:
               name: polr.secrets
               key: db.pass
         - name: DB_DATABASE
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: db.database
+          value: polr
         - name: APP_URL
           valueFrom:
             secretKeyRef:
               name: polr.secrets
               key: app.url
         - name: APP_NAME
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: app.name
+          value: Polr
         - name: SETUP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: setup.password
+          value:
         - name: REG_TYPE
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: reg.type
+          value: none
         - name: IP_METHOD
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: ip.method
+          value:
         - name: PRIVATE
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: private
+          value: true
         - name: THEME
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: theme
+          value: none
         - name: ADMIN_USER
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: admin.user
+          value: admin
         - name: ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -79,5 +72,67 @@ spec:
             secretKeyRef:
               name: polr.secrets
               key: admin.email
-  restartPolicy: Never
-
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: polr-mysql
+  labels:
+    app: polr
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: polr
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: polr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: polr-mysql
+  labels:
+    app: polr
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: polr
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: polr.secrets
+              key: db.pass
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
