@@ -1,6 +1,77 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: polr-mysql
+  labels:
+    app: polr
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: polr
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: polr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: polr-mysql
+  labels:
+    app: polr
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: polr
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: polr
+        - name: MYSQL_USER
+          value: polr
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: polr.secrets
+              key: db.pass
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: polr.secrets
+              key: db.pass
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: polr-main
   labels:
     app: polr
@@ -75,65 +146,3 @@ spec:
               key: admin.email
         ports:
         - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: polr-mysql
-  labels:
-    app: polr
-spec:
-  ports:
-    - port: 3306
-  selector:
-    app: polr
-    tier: mysql
-  clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pv-claim
-  labels:
-    app: polr
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: polr-mysql
-  labels:
-    app: polr
-spec:
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: polr
-        tier: mysql
-    spec:
-      containers:
-      - image: mysql:5.6
-        name: mysql
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: polr.secrets
-              key: db.pass
-        ports:
-        - containerPort: 3306
-          name: mysql
-        volumeMounts:
-        - name: mysql-persistent-storage
-          mountPath: /var/lib/mysql
-      volumes:
-      - name: mysql-persistent-storage
-        persistentVolumeClaim:
-          claimName: mysql-pv-claim
