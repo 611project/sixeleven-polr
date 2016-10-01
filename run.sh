@@ -3,6 +3,7 @@ sed -i "s/%SERVER_NAME%/$APP_URL/g" /etc/nginx/conf.d/polr.conf
 echo "* Downloading polr"
 git clone --depth 1  --branch 1.0-legacy https://github.com/Cydrobolt/polr app
 cd app
+sed -i 's/$debug = FALSE;/$debug = TRUE;/g' lib-core.php
 cp /scripts/dockercfg.php .
 echo "* Installing polr"
 php dockercfg.php
