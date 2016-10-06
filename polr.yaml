@@ -122,10 +122,6 @@ spec:
               key: app.url
         - name: APP_NAME
           value: Polr
-        - name: REG_TYPE
-          value: none
-        - name: IP_METHOD
-          value:
         - name: PRIVATE
           value: 'true'
         - name: THEME
@@ -142,7 +138,7 @@ spec:
             secretKeyRef:
               name: polr.secrets
               key: admin.email
-        - name: SETUP_PASSWORD
+        - name: SETUP_PASSWORD_1
           valueFrom:
             secretKeyRef:
               name: polr.secrets
