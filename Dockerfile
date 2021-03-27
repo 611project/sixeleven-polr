@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:1.19
 
 # Default Configuration
 ENV DB_HOST mysql
